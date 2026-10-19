@@ -57,7 +57,7 @@ With the default policy, a connect timeout from the inventory service is retried
 
 ## Classifying failures
 
-The default policy retries `TimeoutError`, `ConnectionError`, and the httpx connect and timeout errors, propagates the common programming-error types, and reports everything else to the model. Pass your own `classify` to decide by tool name, exception type, or both. It may take a leading `RunContext`, may be async, and runs again on every attempt, so a different error on a later attempt is judged on its own.
+The default policy retries refused connections and the httpx connect and pool timeouts, propagates the common programming-error types, and reports everything else to the model. Pass your own `classify` to decide by tool name, exception type, or both. It may take a leading `RunContext`, may be async, and runs again on every attempt, so a different error on a later attempt is judged on its own. Any further parameter must be keyword-only, so the two signatures stay distinguishable.
 
 ```python
 from typing import Any
@@ -89,7 +89,7 @@ recovery = ToolErrorRecovery(RecoveryPolicy(classify=classify))
 
 `OutOfStock` is raised by your own tools, so its message is written for the model and `expose_message=True` passes it on. Failures of `charge_card` propagate whatever the exception. Everything else keeps the default behavior.
 
-By default the text the model sees names the exception type and omits `str(error)`, because exception messages can carry secrets. `label`, `expose_message`, and a custom `format_error` on the policy opt out of that.
+By default the text the model sees names the exception type and omits `str(error)`, because exception messages can carry secrets. `label`, `expose_message`, and a custom `format_error` on the policy opt out of that. Neither that text nor a `fallback` value passes the result-screening hooks of other capabilities, such as `ToolGuardrail`, so only expose messages you trust.
 
 ## Retrying in place
 

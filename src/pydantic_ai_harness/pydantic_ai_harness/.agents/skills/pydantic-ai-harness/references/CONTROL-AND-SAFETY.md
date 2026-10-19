@@ -72,7 +72,7 @@ Wraps every tool call in `wrap_tool_execute`. When a tool raises, a `classify` c
 `RecoveryPolicy` returns a `RecoveryOutcome`: `retry(n, backoff=..., on_exhausted=...)` calls the tool
 again with the same arguments and no model round trip, `inform(label=..., expose_message=...)` raises
 `ToolFailed` so the model sees a failed tool result, `fallback(value)` returns a substitute result,
-`propagate()` re-raises. The default policy retries timeouts and connection errors, propagates
+`propagate()` re-raises. The default policy retries refused connections and connect timeouts, propagates
 programming errors (`KeyError`, `TypeError`, ...), and informs for everything else. No extra.
 
 ```python
@@ -103,8 +103,8 @@ print(agent.run_sync('Divide 10 by 0').output)
 ```
 
 Without the capability the run ends with the `ZeroDivisionError`. With it, the model receives a
-failed tool result that names the exception type, and can answer the user. A `TimeoutError` or
-`ConnectionError` is retried in place first; a `KeyError` still ends the run.
+failed tool result that names the exception type, and can answer the user. A refused connection or
+connect timeout is retried in place first; a `KeyError` still ends the run.
 
 Parameters: `policy=RecoveryPolicy(classify=..., format_error=..., max_message_len=300,
 include_traceback=False, logger=...)`; `max_recoveries=None` and `per_tool_recoveries=None` cap how
